@@ -12,7 +12,6 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20181012123002-c6f51f82210d // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/devopsfaith/bloomfilter v0.0.0-20190317200532-4687d0b9aa2a
-	github.com/devopsfaith/flatmap v0.0.0-20200601181759-8521186182fc // indirect
 	github.com/devopsfaith/krakend v1.1.2-0.20200930142252-7c9d4ace4128
 	github.com/devopsfaith/krakend-amqp v1.1.1-0.20200703170727-f0e7ebe619af
 	github.com/devopsfaith/krakend-botdetector v0.0.0-20200729112051-82f1b8f8fdfe
@@ -61,13 +60,10 @@ require (
 	github.com/letgoapp/krakend-influx v0.0.0-20190214142340-d2fc9466bb3a
 	github.com/mmcdole/gofeed v1.0.0-beta2 // indirect
 	github.com/mmcdole/goxpp v0.0.0-20170720115402-77e4a51a73ed // indirect
-	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
-	github.com/pelletier/go-toml v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.3.0 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
-	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.3.2 // indirect
+	github.com/stretchr/testify v1.4.0
+	github.com/tidwall/gjson v1.6.4
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/tmthrgd/atomics v0.0.0-20180217065130-6910de195248 // indirect
 	github.com/tmthrgd/go-bitset v0.0.0-20180106085139-4d1be735fbfb // indirect
@@ -77,7 +73,8 @@ require (
 	github.com/tmthrgd/go-memset v0.0.0-20180828131805-6f4e59bf1e1d // indirect
 	github.com/tmthrgd/go-popcount v0.0.0-20180111143836-3918361d3e97 // indirect
 	github.com/unrolled/secure v0.0.0-20171102162350-0f73fc7feba6 // indirect
-	github.com/xeipuuv/gojsonschema v1.2.1-0.20200424115421-065759f9c3d7 // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	gopkg.in/Graylog2/go-gelf.v2 v2.0.0-20180326133423-4dbb9d721348 // indirect
 )
+
+replace github.com/devopsfaith/krakend-opencensus => github.com/sahalazain/krakend-opencensus v1.1.1-0.20201224040232-e435e444d96e

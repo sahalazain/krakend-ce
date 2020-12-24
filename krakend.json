@@ -1,7 +1,7 @@
 {
     "version": 2,
     "name": "My lovely gateway",
-    "port": 8080,
+    "port": 8000,
     "cache_ttl": "3600s",
     "timeout": "3s",
     "extra_config": {
@@ -28,6 +28,122 @@
       }
     },
     "endpoints": [
+        {
+            "endpoint": "/user/view",
+            "method": "GET",
+            "headers_to_pass": [
+                "*"
+            ],
+            "querystring_params": [
+                "*"
+            ],
+            "concurrent_calls": 1,
+            "output_encoding" : "no-op",
+            "extra_config" : {
+                "github_com/sahalzain/krakend-keyauth" : {
+                    "service_address" : "http://localhost:8080",
+                    "key_path" : "query.apikey"
+                }
+            },
+            "backend": [
+                {
+                    "host": [
+                        "http://localhost:8080"
+                    ],
+                    "url_pattern": "/user/view",
+                    "disable_host_sanitize": false,
+                    "encoding" : "no-op"
+                }
+            ]
+        },
+        {
+            "endpoint": "/user/data",
+            "method": "GET",
+            "headers_to_pass": [
+                "*"
+            ],
+            "querystring_params": [
+                "*"
+            ],
+            "concurrent_calls": 1,
+            "output_encoding" : "no-op",
+            "extra_config" : {
+                "github_com/sahalzain/krakend-opa" : {
+                    "service_address" : "http://localhost:8181",
+                    "package_name" : "opa.user",
+                    "payload" : {
+                        "username" : "query.username"
+                    }
+                }
+            },
+            "backend": [
+                {
+                    "host": [
+                        "http://localhost:8080"
+                    ],
+                    "url_pattern": "/user/data",
+                    "disable_host_sanitize": false,
+                    "encoding" : "no-op"
+                }
+            ]
+        },
+        {
+            "endpoint": "/kafka",
+            "method": "POST",
+            "headers_to_pass": [
+              "*"
+            ],
+            "querystring_params": [
+              "*"
+            ],
+            "concurrent_calls": 1,
+            "output_encoding" : "json",
+            "backend": [
+                {
+                    "host": [
+                        "http://localhost:8080"
+                    ],
+                    "url_pattern": "/kafka",
+                    "disable_host_sanitize": false,
+                    "encoding" : "json"
+                },
+                {
+                    "host": ["kafka://"],
+                    "disable_host_sanitize": true,
+                    "extra_config": {
+                        "github.com/devopsfaith/krakend-pubsub/publisher": {
+                            "topic_url": "mytopic"
+                        },
+                        "github.com/devopsfaith/krakend/proxy": {
+                            "shadow": true
+                        }
+                    }
+                }
+            ]
+          },
+          {
+            "endpoint": "/kafka",
+            "method": "GET",
+            "headers_to_pass": [
+              "*"
+            ],
+            "querystring_params": [
+              "*"
+            ],
+            "concurrent_calls": 1,
+            "output_encoding" : "json",
+            "backend": [
+              {
+                "host": ["kafka://"],
+                "disable_host_sanitize": true,
+                "extra_config": {
+                    "github.com/devopsfaith/krakend-pubsub/subscriber": {
+                        "subscription_url": "group?topic=mytopic"
+                    }
+                }
+              }
+            ]
+          },
         {
             "endpoint": "/supu",
             "method": "GET",

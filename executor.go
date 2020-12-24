@@ -9,17 +9,18 @@ import (
 
 	krakendbf "github.com/devopsfaith/bloomfilter/krakend"
 	cel "github.com/devopsfaith/krakend-cel"
-	"github.com/devopsfaith/krakend-cobra"
+	cmd "github.com/devopsfaith/krakend-cobra"
 	cors "github.com/devopsfaith/krakend-cors/gin"
 	gelf "github.com/devopsfaith/krakend-gelf"
-	"github.com/devopsfaith/krakend-gologging"
-	"github.com/devopsfaith/krakend-jose"
+	gologging "github.com/devopsfaith/krakend-gologging"
+	jose "github.com/devopsfaith/krakend-jose"
 	logstash "github.com/devopsfaith/krakend-logstash"
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
 	opencensus "github.com/devopsfaith/krakend-opencensus"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/datadog"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/influxdb"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/jaeger"
+	_ "github.com/devopsfaith/krakend-opencensus/exporter/newrelic"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/ocagent"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/prometheus"
 	_ "github.com/devopsfaith/krakend-opencensus/exporter/stackdriver"
@@ -35,7 +36,7 @@ import (
 	server "github.com/devopsfaith/krakend/transport/http/server/plugin"
 	"github.com/gin-gonic/gin"
 	"github.com/go-contrib/uuid"
-	"github.com/letgoapp/krakend-influx"
+	influxdb "github.com/letgoapp/krakend-influx"
 )
 
 // NewExecutor returns an executor for the cmd package. The executor initalizes the entire gateway by
