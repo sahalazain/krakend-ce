@@ -2,6 +2,7 @@ package krakend
 
 import (
 	botdetector "github.com/devopsfaith/krakend-botdetector/gin"
+	"github.com/devopsfaith/krakend-ce/ext/keyauth"
 	"github.com/devopsfaith/krakend-ce/ext/opa"
 	jose "github.com/devopsfaith/krakend-jose"
 	ginjose "github.com/devopsfaith/krakend-jose/gin"
@@ -19,6 +20,7 @@ func NewHandlerFactory(logger logging.Logger, metricCollector *metrics.Metrics, 
 	handlerFactory = opa.HandlerFactory(logger, handlerFactory)
 	handlerFactory = lua.HandlerFactory(logger, handlerFactory)
 	handlerFactory = ginjose.HandlerFactory(handlerFactory, logger, rejecter)
+	handlerFactory = keyauth.HandlerFactory(logger, handlerFactory)
 	handlerFactory = metricCollector.NewHTTPHandlerFactory(handlerFactory)
 	handlerFactory = opencensus.New(handlerFactory)
 	handlerFactory = botdetector.New(handlerFactory, logger)
