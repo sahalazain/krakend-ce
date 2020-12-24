@@ -2,7 +2,8 @@ package krakend
 
 import (
 	botdetector "github.com/devopsfaith/krakend-botdetector/gin"
-	"github.com/devopsfaith/krakend-jose"
+	"github.com/devopsfaith/krakend-ce/ext/opa"
+	jose "github.com/devopsfaith/krakend-jose"
 	ginjose "github.com/devopsfaith/krakend-jose/gin"
 	lua "github.com/devopsfaith/krakend-lua/router/gin"
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
@@ -15,6 +16,7 @@ import (
 // NewHandlerFactory returns a HandlerFactory with a rate-limit and a metrics collector middleware injected
 func NewHandlerFactory(logger logging.Logger, metricCollector *metrics.Metrics, rejecter jose.RejecterFactory) router.HandlerFactory {
 	handlerFactory := juju.HandlerFactory
+	handlerFactory = opa.HandlerFactory(logger, handlerFactory)
 	handlerFactory = lua.HandlerFactory(logger, handlerFactory)
 	handlerFactory = ginjose.HandlerFactory(handlerFactory, logger, rejecter)
 	handlerFactory = metricCollector.NewHTTPHandlerFactory(handlerFactory)
