@@ -75,7 +75,18 @@ func (x *xtraConfig) validateKey(r *http.Request) (bool, error) {
 		Key: key,
 	}
 
-	return x.Service.Validate(req)
+	id, err := x.Service.Validate(req)
+	if err != nil {
+		return false, err
+	}
+
+	if id == "" {
+		return false, nil
+	}
+
+	r.Header.Set(x.IDHeaderName, id)
+
+	return true, nil
 }
 
 func (x *xtraConfig) extractKey(r *http.Request) (string, error) {

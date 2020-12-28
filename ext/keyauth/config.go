@@ -13,12 +13,14 @@ const (
 	namespace            = "github_com/sahalzain/krakend-keyauth"
 	basePath             = "/v1/auth/key"
 	defaultCacheDuration = 24 * 3600
+	defaultHeaderName    = "X-KeyID"
 )
 
 type xtraConfig struct {
 	ServiceAddress string
 	BasePath       string
 	KeyPath        string
+	IDHeaderName   string
 	CacheDuration  int
 	Service        service.KeyAuth
 }
@@ -35,6 +37,7 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 	conf := xtraConfig{
 		CacheDuration: defaultCacheDuration,
 		BasePath:      basePath,
+		IDHeaderName:  defaultHeaderName,
 	}
 
 	if sa, ok := tmp["service_address"].(string); ok {
@@ -61,6 +64,10 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 
 	if bp, ok := tmp["base_path"].(string); ok {
 		conf.BasePath = bp
+	}
+
+	if hn, ok := tmp["header_name"].(string); ok {
+		conf.IDHeaderName = hn
 	}
 
 	conf.Service = service.NewHTTPKeyAuth(conf.ServiceAddress, conf.BasePath, conf.CacheDuration)

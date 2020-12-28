@@ -6,9 +6,14 @@ import (
 	cache "github.com/devopsfaith/krakend-ce/ext/cache"
 )
 
+//KeyAuthResponse OPA response model
+type KeyAuthResponse struct {
+	Result string `json:"result,omitempty" mapstructure:"result"`
+}
+
 //KeyAuth keyAuth service interface
 type KeyAuth interface {
-	Validate(key Cacheable) (bool, error)
+	Validate(key Cacheable) (string, error)
 }
 
 //HTTPKeyAuth http keyAuth service
@@ -20,7 +25,7 @@ type HTTPKeyAuth struct {
 
 //DummyKeyAuth dummy key auth service
 type DummyKeyAuth struct {
-	Result bool
+	Result string
 	Error  error
 }
 
@@ -39,16 +44,16 @@ func NewDummyKeyAuth() *DummyKeyAuth {
 }
 
 //Validate validate key api
-func (h *HTTPKeyAuth) Validate(key Cacheable) (bool, error) {
+func (h *HTTPKeyAuth) Validate(key Cacheable) (string, error) {
 	hs := key.Hash()
 
 	if rsp, ok := h.cache.Get(hs); ok {
-		return rsp.(bool), nil
+		return rsp.(string), nil
 	}
 
-	var rsp Response
+	var rsp KeyAuthResponse
 	if err := post(h.address, h.basePath, key, &rsp); err != nil {
-		return false, err
+		return "", err
 	}
 
 	h.cache.Set(hs, rsp.Result)
@@ -57,6 +62,6 @@ func (h *HTTPKeyAuth) Validate(key Cacheable) (bool, error) {
 }
 
 //Validate validate key api
-func (d *DummyKeyAuth) Validate(key Cacheable) (bool, error) {
+func (d *DummyKeyAuth) Validate(key Cacheable) (string, error) {
 	return d.Result, d.Error
 }

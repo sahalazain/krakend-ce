@@ -2,6 +2,7 @@ package keyauth
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -15,6 +16,7 @@ func TestBodyRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
 		KeyPath:        "body.key_api",
+		IDHeaderName:   defaultHeaderName,
 	}
 
 	ds := service.NewDummyKeyAuth()
@@ -32,13 +34,15 @@ func TestBodyRequest(t *testing.T) {
 
 	cfg.Service = ds
 	ds.Error = nil
-	ds.Result = true
+	ds.Result = "partner1"
 
 	r, err := cfg.validateKey(req)
 	assert.Nil(t, err)
 	assert.True(t, r)
+	fmt.Println(cfg.IDHeaderName)
+	assert.Equal(t, req.Header.Get(cfg.IDHeaderName), "partner1")
 
-	ds.Result = false
+	ds.Result = ""
 	r, err = cfg.validateKey(req)
 	assert.False(t, r)
 }
