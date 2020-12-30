@@ -8,6 +8,7 @@ import (
 	ginjose "github.com/devopsfaith/krakend-jose/gin"
 	lua "github.com/devopsfaith/krakend-lua/router/gin"
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
+	newrelic "github.com/devopsfaith/krakend-newrelic"
 	opencensus "github.com/devopsfaith/krakend-opencensus/router/gin"
 	juju "github.com/devopsfaith/krakend-ratelimit/juju/router/gin"
 	"github.com/devopsfaith/krakend/logging"
@@ -23,6 +24,7 @@ func NewHandlerFactory(logger logging.Logger, metricCollector *metrics.Metrics, 
 	handlerFactory = keyauth.HandlerFactory(logger, handlerFactory)
 	handlerFactory = metricCollector.NewHTTPHandlerFactory(handlerFactory)
 	handlerFactory = opencensus.New(handlerFactory)
+	handlerFactory = newrelic.HandlerFactory(handlerFactory)
 	handlerFactory = botdetector.New(handlerFactory, logger)
 	return handlerFactory
 }

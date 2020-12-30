@@ -9,9 +9,10 @@ import (
 	httpcache "github.com/devopsfaith/krakend-httpcache"
 	lambda "github.com/devopsfaith/krakend-lambda"
 	lua "github.com/devopsfaith/krakend-lua/proxy"
-	"github.com/devopsfaith/krakend-martian"
+	martian "github.com/devopsfaith/krakend-martian"
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
-	"github.com/devopsfaith/krakend-oauth2-clientcredentials"
+	newrelic "github.com/devopsfaith/krakend-newrelic"
+	oauth2client "github.com/devopsfaith/krakend-oauth2-clientcredentials"
 	opencensus "github.com/devopsfaith/krakend-opencensus"
 	pubsub "github.com/devopsfaith/krakend-pubsub"
 	juju "github.com/devopsfaith/krakend-ratelimit/juju/proxy"
@@ -47,6 +48,7 @@ func NewBackendFactoryWithContext(ctx context.Context, logger logging.Logger, me
 		} else {
 			clientFactory = httpcache.NewHTTPClient(cfg)
 		}
+		clientFactory = newrelic.HTTPClientFactory(clientFactory)
 		return opencensus.HTTPRequestExecutor(clientFactory)
 	}
 	requestExecutorFactory = httprequestexecutor.HTTPRequestExecutor(logger, requestExecutorFactory)
@@ -61,6 +63,7 @@ func NewBackendFactoryWithContext(ctx context.Context, logger logging.Logger, me
 	backendFactory = cb.BackendFactory(backendFactory, logger)
 	backendFactory = metricCollector.BackendFactory("backend", backendFactory)
 	backendFactory = opencensus.BackendFactory(backendFactory)
+	backendFactory = newrelic.BackendFactory("backend", backendFactory)
 	return backendFactory
 }
 

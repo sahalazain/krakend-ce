@@ -5,6 +5,7 @@ import (
 	jsonschema "github.com/devopsfaith/krakend-jsonschema"
 	lua "github.com/devopsfaith/krakend-lua/proxy"
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
+	newrelic "github.com/devopsfaith/krakend-newrelic"
 	opencensus "github.com/devopsfaith/krakend-opencensus"
 	"github.com/devopsfaith/krakend/logging"
 	"github.com/devopsfaith/krakend/proxy"
@@ -19,6 +20,7 @@ func NewProxyFactory(logger logging.Logger, backendFactory proxy.BackendFactory,
 	proxyFactory = lua.ProxyFactory(logger, proxyFactory)
 	proxyFactory = metricCollector.ProxyFactory("pipe", proxyFactory)
 	proxyFactory = opencensus.ProxyFactory(proxyFactory)
+	proxyFactory = newrelic.ProxyFactory("pipe", proxyFactory)
 	return proxyFactory
 }
 

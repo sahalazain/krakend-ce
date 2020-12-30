@@ -12,7 +12,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20181012123002-c6f51f82210d // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/devopsfaith/bloomfilter v0.0.0-20190317200532-4687d0b9aa2a
-	github.com/devopsfaith/krakend v1.1.2-0.20200930142252-7c9d4ace4128
+	github.com/devopsfaith/krakend v1.2.0
 	github.com/devopsfaith/krakend-amqp v1.1.1-0.20200703170727-f0e7ebe619af
 	github.com/devopsfaith/krakend-botdetector v0.0.0-20200729112051-82f1b8f8fdfe
 	github.com/devopsfaith/krakend-cel v0.0.0-20200908134208-7162c125376d
@@ -33,6 +33,7 @@ require (
 	github.com/devopsfaith/krakend-lua v1.1.2-0.20200909152058-1b4e6c9afb8f
 	github.com/devopsfaith/krakend-martian v0.0.0-20191207191841-92e3287c36d9
 	github.com/devopsfaith/krakend-metrics v1.1.0
+	github.com/devopsfaith/krakend-newrelic v0.0.0-20190214142345-06679ae95d3c
 	github.com/devopsfaith/krakend-oauth2-clientcredentials v1.1.0
 	github.com/devopsfaith/krakend-opencensus v1.1.1-0.20200707175954-c3b3652bb365
 	github.com/devopsfaith/krakend-pubsub v0.0.0-20200728135630-1781054836a5
@@ -60,9 +61,10 @@ require (
 	github.com/letgoapp/krakend-influx v0.0.0-20190214142340-d2fc9466bb3a
 	github.com/mmcdole/gofeed v1.0.0-beta2 // indirect
 	github.com/mmcdole/goxpp v0.0.0-20170720115402-77e4a51a73ed // indirect
+	github.com/newrelic/go-agent v3.9.0+incompatible // indirect
 	github.com/sirupsen/logrus v1.3.0 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.4
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/tmthrgd/atomics v0.0.0-20180217065130-6910de195248 // indirect
@@ -78,3 +80,5 @@ require (
 )
 
 replace github.com/devopsfaith/krakend-opencensus => github.com/sahalazain/krakend-opencensus v1.1.1-0.20201224040232-e435e444d96e
+
+replace github.com/devopsfaith/krakend-newrelic => github.com/sahalazain/krakend-newrelic v0.0.0-20201230014148-ea6d470ced09
