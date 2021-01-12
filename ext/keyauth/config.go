@@ -14,15 +14,18 @@ const (
 	basePath             = "/v1/auth/key"
 	defaultCacheDuration = 24 * 3600
 	defaultHeaderName    = "X-KeyID"
+	defaultResponsePath  = "result"
 )
 
 type xtraConfig struct {
 	ServiceAddress string
 	BasePath       string
-	KeyPath        string
 	IDHeaderName   string
 	CacheDuration  int
+	CacheSize      int
 	Service        service.KeyAuth
+	RequestMap     map[string]string
+	ResponsePath   string
 }
 
 func configGetter(cfg config.ExtraConfig) *xtraConfig {
@@ -36,8 +39,10 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 	}
 	conf := xtraConfig{
 		CacheDuration: defaultCacheDuration,
+		CacheSize:     0,
 		BasePath:      basePath,
 		IDHeaderName:  defaultHeaderName,
+		RequestMap:    make(map[string]string),
 	}
 
 	if sa, ok := tmp["service_address"].(string); ok {
@@ -46,20 +51,35 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		return nil
 	}
 
-	if kp, ok := tmp["key_path"].(string); ok {
-		if !strings.Contains(kp, ".") {
-			return nil
+	if rm, ok := tmp["request_map"]; ok {
+		if rmap, ok := rm.(map[string]interface{}); ok {
+			for k, v := range rmap {
+				if !strings.Contains(fmt.Sprintf("%v", v), ".") {
+					continue
+				}
+				conf.RequestMap[k] = fmt.Sprintf("%v", v)
+			}
 		}
-		conf.KeyPath = kp
-	} else {
+	}
+
+	if len(conf.RequestMap) == 0 {
 		return nil
 	}
 
 	if cd, ok := tmp["cache_duration"]; ok {
-		fmt.Println("Change cache duration")
 		if cdi, err := strconv.Atoi(fmt.Sprintf("%v", cd)); err == nil {
 			conf.CacheDuration = cdi
 		}
+	}
+
+	if cs, ok := tmp["cache_size"]; ok {
+		if csi, err := strconv.Atoi(fmt.Sprintf("%v", cs)); err == nil {
+			conf.CacheSize = csi
+		}
+	}
+
+	if rp, ok := tmp["response_path"].(string); ok {
+		conf.ResponsePath = rp
 	}
 
 	if bp, ok := tmp["base_path"].(string); ok {
@@ -70,7 +90,7 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		conf.IDHeaderName = hn
 	}
 
-	conf.Service = service.NewHTTPKeyAuth(conf.ServiceAddress, conf.BasePath, conf.CacheDuration)
+	conf.Service = service.NewHTTPKeyAuth(conf.ServiceAddress, conf.BasePath, conf.ResponsePath, conf.CacheDuration, conf.CacheSize)
 
 	return &conf
 }

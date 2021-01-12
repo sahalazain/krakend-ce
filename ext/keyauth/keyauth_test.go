@@ -15,8 +15,10 @@ func TestBodyRequest(t *testing.T) {
 	const json = `{"key_api": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9","id":10001}`
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "body.key_api",
-		IDHeaderName:   defaultHeaderName,
+		RequestMap: map[string]string{
+			"key": "body.key_api",
+		},
+		IDHeaderName: defaultHeaderName,
 	}
 
 	ds := service.NewDummyKeyAuth()
@@ -28,9 +30,9 @@ func TestBodyRequest(t *testing.T) {
 	assert.NotNil(t, req, "Should not nil")
 	req.Body = ioutil.NopCloser(bytes.NewReader([]byte(json)))
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.Nil(t, err)
-	assert.Equal(t, k, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+	assert.Equal(t, k.Get("key"), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
 
 	cfg.Service = ds
 	ds.Error = nil
@@ -50,7 +52,9 @@ func TestBodyRequest(t *testing.T) {
 func TestHeaderRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "header.X-API-Key",
+		RequestMap: map[string]string{
+			"key": "header.X-API-Key",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -60,16 +64,18 @@ func TestHeaderRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.Nil(t, err)
-	assert.Equal(t, k, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+	assert.Equal(t, k.Get("key"), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
 
 }
 
 func TestQueryRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "query.api-key",
+		RequestMap: map[string]string{
+			"key": "query.api-key",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -78,16 +84,18 @@ func TestQueryRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.Nil(t, err)
-	assert.Equal(t, k, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+	assert.Equal(t, k.Get("key"), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
 
 }
 
 func TestInvalidRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "jwt.apikey",
+		RequestMap: map[string]string{
+			"key": "jwt.apikey",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -96,9 +104,9 @@ func TestInvalidRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.NotNil(t, err)
-	assert.Equal(t, k, "")
+	assert.Equal(t, k.Get("key"), "")
 
 }
 
@@ -106,7 +114,9 @@ func TestInvalidBodyRequest(t *testing.T) {
 	const json = `{"key_api": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9","id":10001}`
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "body.keyapi",
+		RequestMap: map[string]string{
+			"key": "body.keyapi",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -116,15 +126,17 @@ func TestInvalidBodyRequest(t *testing.T) {
 	assert.NotNil(t, req, "Should not nil")
 	req.Body = ioutil.NopCloser(bytes.NewReader([]byte(json)))
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.NotNil(t, err)
-	assert.Equal(t, k, "")
+	assert.Equal(t, k.Get("key"), "")
 }
 
 func TestInvalidHeaderRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "header.X-API-Key",
+		RequestMap: map[string]string{
+			"key": "header.X-API-Key",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -134,16 +146,18 @@ func TestInvalidHeaderRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.NotNil(t, err)
-	assert.Equal(t, k, "")
+	assert.Equal(t, k.Get("key"), "")
 
 }
 
 func TestInvalidQueryRequest(t *testing.T) {
 	cfg := &xtraConfig{
 		ServiceAddress: "http://localhost:8080",
-		KeyPath:        "query.apikey",
+		RequestMap: map[string]string{
+			"key": "query.apikey",
+		},
 	}
 
 	assert.NotNil(t, cfg)
@@ -152,8 +166,8 @@ func TestInvalidQueryRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 
-	k, err := cfg.extractKey(req)
+	k, err := cfg.buildValidationRequest(req)
 	assert.NotNil(t, err)
-	assert.Equal(t, k, "")
+	assert.Equal(t, k.Get("key"), "")
 
 }

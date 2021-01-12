@@ -18,15 +18,20 @@ import (
 )
 
 //Request KeyAuth request model
-type Request struct {
-	Key string `json:"key,omitempty" mapstructure:"key"`
-	ID  string `json:"id,omitempty" mapstructure:"id"`
-}
+type Request map[string]interface{}
 
 //Hash calculate request hash
 func (r *Request) Hash() [32]byte {
 	val := fmt.Sprintf("%v", r)
 	return sha256.Sum256([]byte(val))
+}
+
+//Get get value
+func (r *Request) Get(key string) interface{} {
+	if r == nil {
+		return ""
+	}
+	return map[string]interface{}(*r)[key]
 }
 
 //HandlerFactory Open Policy Agent handler factory
@@ -66,13 +71,9 @@ func HandlerFactory(l logging.Logger, next krakendgin.HandlerFactory) krakendgin
 }
 
 func (x *xtraConfig) validateKey(r *http.Request) (bool, error) {
-	key, err := x.extractKey(r)
+	req, err := x.buildValidationRequest(r)
 	if err != nil {
 		return false, err
-	}
-
-	req := &Request{
-		Key: key,
 	}
 
 	id, err := x.Service.Validate(req)
@@ -89,8 +90,21 @@ func (x *xtraConfig) validateKey(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-func (x *xtraConfig) extractKey(r *http.Request) (string, error) {
-	parts := strings.Split(x.KeyPath, ".")
+func (x *xtraConfig) buildValidationRequest(r *http.Request) (*Request, error) {
+	req := make(map[string]interface{})
+	for k, v := range x.RequestMap {
+		d, err := x.extractKey(v, r)
+		if err != nil {
+			return nil, err
+		}
+		req[k] = d
+	}
+	rc := Request(req)
+	return &rc, nil
+}
+
+func (x *xtraConfig) extractKey(path string, r *http.Request) (string, error) {
+	parts := strings.Split(path, ".")
 	switch strings.ToLower(parts[0]) {
 	case "body":
 		if r.Body == nil {

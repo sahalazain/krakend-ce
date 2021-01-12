@@ -43,7 +43,9 @@ func TestConfigParse(t *testing.T) {
 	xtra := config.ExtraConfig{
 		namespace: map[string]interface{}{
 			"service_address": "http://localhost:8080",
-			"key_path":        "body.key_api",
+			"request_map": map[string]interface{}{
+				"key": "body.key_api",
+			},
 		},
 	}
 
@@ -61,10 +63,12 @@ func TestConfigCustomParse(t *testing.T) {
 		namespace: map[string]interface{}{
 			"service_address": "http://localhost:8080",
 			"package_name":    "opa.test",
-			"key_path":        "body.key_api",
-			"base_path":       "/v2/auth/key",
-			"cache_duration":  10,
-			"header_name":     "X-PartnerID",
+			"request_map": map[string]interface{}{
+				"key": "body.key_api",
+			},
+			"base_path":      "/v2/auth/key",
+			"cache_duration": 10,
+			"header_name":    "X-PartnerID",
 		},
 	}
 
