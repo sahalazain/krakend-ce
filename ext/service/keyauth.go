@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"time"
 
 	cache "github.com/devopsfaith/krakend-ce/ext/cache"
@@ -18,9 +19,10 @@ type KeyAuth interface {
 
 //HTTPKeyAuth http keyAuth service
 type HTTPKeyAuth struct {
-	address  string
-	basePath string
-	cache    *cache.MemoryCache
+	address      string
+	basePath     string
+	cache        cache.Local
+	responsePath string
 }
 
 //DummyKeyAuth dummy key auth service
@@ -30,11 +32,20 @@ type DummyKeyAuth struct {
 }
 
 //NewHTTPKeyAuth create instance of http keyAuth service
-func NewHTTPKeyAuth(address, basePath string, cacheDuration int) *HTTPKeyAuth {
+func NewHTTPKeyAuth(address, basePath, responsePath string, cacheDuration, cacheSize int) *HTTPKeyAuth {
+	var c cache.Local
+	if cacheSize > 0 {
+		c, _ = cache.NewLRU(cacheSize)
+	}
+
+	if c == nil {
+		c = cache.NewMemoryCache(time.Duration(cacheDuration) * time.Second)
+	}
+
 	return &HTTPKeyAuth{
 		address:  address,
 		basePath: basePath,
-		cache:    cache.NewMemoryCache(time.Duration(cacheDuration) * time.Second),
+		cache:    c,
 	}
 }
 
@@ -51,14 +62,24 @@ func (h *HTTPKeyAuth) Validate(key Cacheable) (string, error) {
 		return rsp.(string), nil
 	}
 
-	var rsp KeyAuthResponse
+	var rsp map[string]interface{}
 	if err := post(h.address, h.basePath, key, &rsp); err != nil {
 		return "", err
 	}
 
-	h.cache.Set(hs, rsp.Result)
+	res, ok := lookup(h.responsePath, rsp)
+	if !ok {
+		return "", errors.New("No value within result path")
+	}
 
-	return rsp.Result, nil
+	id, ok := res.(string)
+	if !ok {
+		return "", errors.New("Invalid result type")
+	}
+
+	h.cache.Set(hs, id)
+
+	return id, nil
 }
 
 //Validate validate key api

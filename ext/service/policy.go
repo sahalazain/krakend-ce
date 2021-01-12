@@ -21,7 +21,7 @@ type Policy interface {
 type HTTPOPA struct {
 	address  string
 	basePath string
-	cache    *cache.MemoryCache
+	cache    cache.Local
 }
 
 //DummyOPA dummy OPA service
@@ -36,11 +36,20 @@ type Response struct {
 }
 
 //NewHTTPOPA create new http OPA service instance
-func NewHTTPOPA(address, basePath string, cacheDuration int) *HTTPOPA {
+func NewHTTPOPA(address, basePath string, cacheDuration, cacheSize int) *HTTPOPA {
+	var c cache.Local
+	if cacheSize > 0 {
+		c, _ = cache.NewLRU(cacheSize)
+	}
+
+	if c == nil {
+		c = cache.NewMemoryCache(time.Duration(cacheDuration) * time.Second)
+	}
+
 	return &HTTPOPA{
 		address:  address,
 		basePath: basePath,
-		cache:    cache.NewMemoryCache(time.Duration(cacheDuration) * time.Second),
+		cache:    c,
 	}
 }
 
