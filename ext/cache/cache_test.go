@@ -25,6 +25,10 @@ func TestCache(t *testing.T) {
 	rsp, ok = mc.Get(hash("test2"))
 	assert.True(t, ok)
 	assert.False(t, rsp.(bool))
+
+	mc.Delete(hash("test1"))
+	rsp, ok = mc.Get(hash("test1"))
+	assert.False(t, ok)
 }
 
 func TestCacheExpiration(t *testing.T) {
@@ -44,4 +48,27 @@ func TestCacheExpiration(t *testing.T) {
 
 func hash(s string) [32]byte {
 	return sha256.Sum256([]byte(s))
+}
+
+func TestLRUCache(t *testing.T) {
+	mc, _ := NewLRU(10)
+
+	mc.Set(hash("test1"), true)
+	rsp, ok := mc.Get(hash("test1"))
+
+	assert.True(t, ok)
+	assert.True(t, rsp.(bool))
+
+	rsp, ok = mc.Get(hash("test2"))
+	assert.False(t, ok)
+	assert.Nil(t, rsp)
+
+	mc.Set(hash("test2"), false)
+	rsp, ok = mc.Get(hash("test2"))
+	assert.True(t, ok)
+	assert.False(t, rsp.(bool))
+
+	mc.Delete(hash("test1"))
+	rsp, ok = mc.Get(hash("test1"))
+	assert.False(t, ok)
 }

@@ -3,9 +3,18 @@ package opa
 import (
 	"sync"
 	"time"
+
+	lru "github.com/hashicorp/golang-lru"
 )
 
 var mCache *MemoryCache
+
+//Local local cache
+type Local interface {
+	Get(key [32]byte) (interface{}, bool)
+	Set(key [32]byte, val interface{})
+	Delete(key [32]byte)
+}
 
 type cacheValue struct {
 	value   interface{}
@@ -58,4 +67,35 @@ func NewMemoryCache(exp time.Duration) *MemoryCache {
 		expDuration: exp,
 	}
 	return c
+}
+
+//LRU lru cache
+type LRU struct {
+	cache *lru.Cache
+}
+
+//NewLRU create lru cache instance
+func NewLRU(size int) (*LRU, error) {
+	c, err := lru.New(size)
+	if err != nil {
+		return nil, err
+	}
+	return &LRU{
+		cache: c,
+	}, nil
+}
+
+//Get get value by key
+func (l *LRU) Get(key [32]byte) (interface{}, bool) {
+	return l.cache.Get(key)
+}
+
+//Set set value to cache
+func (l *LRU) Set(key [32]byte, val interface{}) {
+	l.cache.Add(key, val)
+}
+
+//Delete delete value from cache
+func (l *LRU) Delete(key [32]byte) {
+	l.cache.Remove(key)
 }
