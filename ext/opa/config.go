@@ -22,6 +22,7 @@ type xtraConfig struct {
 	Directive      string
 	PayloadMap     map[string]string
 	CacheDuration  int
+	CacheSize      int
 	Service        service.Policy
 }
 
@@ -38,6 +39,7 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		Directive:     "allow",
 		BasePath:      basePath,
 		CacheDuration: defaultCacheDuration,
+		CacheSize:     0,
 	}
 
 	if sa, ok := tmp["service_address"].(string); ok {
@@ -61,11 +63,17 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 	}
 
 	if cd, ok := tmp["cache_duration"]; ok {
-		fmt.Println("Change cache duration")
 		if cdi, err := strconv.Atoi(fmt.Sprintf("%v", cd)); err == nil {
 			conf.CacheDuration = cdi
 		}
 	}
+
+	if cs, ok := tmp["cache_size"]; ok {
+		if csi, err := strconv.Atoi(fmt.Sprintf("%v", cs)); err == nil {
+			conf.CacheSize = csi
+		}
+	}
+
 	if pm, ok := tmp["payload"].(map[string]interface{}); ok {
 		tmp := make(map[string]string)
 		for k, v := range pm {
@@ -79,7 +87,7 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		conf.PayloadMap = tmp
 	}
 
-	conf.Service = service.NewHTTPOPA(conf.ServiceAddress, conf.BasePath, conf.CacheDuration)
+	conf.Service = service.NewHTTPOPA(conf.ServiceAddress, conf.BasePath, conf.CacheDuration, conf.CacheSize)
 
 	return &conf
 }
