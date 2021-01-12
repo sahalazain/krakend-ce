@@ -42,7 +42,9 @@
             "extra_config" : {
                 "github_com/sahalzain/krakend-keyauth" : {
                     "service_address" : "http://localhost:8080",
-                    "key_path" : "query.apikey"
+                    "request_map" : {
+                        "key" : "query.apikey"
+                    }
                 }
             },
             "backend": [
