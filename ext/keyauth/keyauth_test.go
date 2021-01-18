@@ -9,6 +9,7 @@ import (
 
 	"github.com/devopsfaith/krakend-ce/ext/service"
 	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 )
 
 func TestBodyRequest(t *testing.T) {
@@ -18,7 +19,7 @@ func TestBodyRequest(t *testing.T) {
 		RequestMap: map[string]string{
 			"key": "body.key_api",
 		},
-		IDHeaderName: defaultHeaderName,
+		IDResultPath: defaultResultPath,
 	}
 
 	ds := service.NewDummyKeyAuth()
@@ -41,8 +42,8 @@ func TestBodyRequest(t *testing.T) {
 	r, err := cfg.validateKey(req)
 	assert.Nil(t, err)
 	assert.True(t, r)
-	fmt.Println(cfg.IDHeaderName)
-	assert.Equal(t, req.Header.Get(cfg.IDHeaderName), "partner1")
+	fmt.Println(cfg.IDResultPath)
+	assert.Equal(t, req.Header.Get(cfg.IDResultPath), "partner1")
 
 	ds.Result = ""
 	r, err = cfg.validateKey(req)
@@ -169,5 +170,43 @@ func TestInvalidQueryRequest(t *testing.T) {
 	k, err := cfg.buildValidationRequest(req)
 	assert.NotNil(t, err)
 	assert.Equal(t, k.Get("key"), "")
+
+}
+
+func TestBodyResult(t *testing.T) {
+	const json = `{"key_api": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9","id":10001}`
+	cfg := &xtraConfig{
+		ServiceAddress: "http://localhost:8080",
+		RequestMap: map[string]string{
+			"key": "body.key_api",
+		},
+		IDResultPath: "body.partner",
+	}
+
+	ds := service.NewDummyKeyAuth()
+
+	assert.NotNil(t, cfg)
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/echo/alpha?city=Jakarta", nil)
+	assert.Nil(t, err)
+	assert.NotNil(t, req, "Should not nil")
+	req.Body = ioutil.NopCloser(bytes.NewReader([]byte(json)))
+
+	k, err := cfg.buildValidationRequest(req)
+	assert.Nil(t, err)
+	assert.Equal(t, k.Get("key"), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9")
+
+	cfg.Service = ds
+	ds.Error = nil
+	ds.Result = "partner1"
+
+	r, err := cfg.validateKey(req)
+	assert.Nil(t, err)
+	assert.True(t, r)
+
+	raw, _ := ioutil.ReadAll(req.Body)
+	val := gjson.Get(string(raw), "partner")
+
+	assert.Equal(t, val.String(), "partner1")
 
 }

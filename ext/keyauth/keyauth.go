@@ -15,6 +15,7 @@ import (
 	krakendgin "github.com/devopsfaith/krakend/router/gin"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 //Request KeyAuth request model
@@ -85,7 +86,9 @@ func (x *xtraConfig) validateKey(r *http.Request) (bool, error) {
 		return false, nil
 	}
 
-	r.Header.Set(x.IDHeaderName, id)
+	if err := x.injectResult(x.IDResultPath, id, r); err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -145,5 +148,31 @@ func (x *xtraConfig) extractKey(path string, r *http.Request) (string, error) {
 		return "", errors.New("API Key on query not found")
 	default:
 		return "", errors.New("Invalid path")
+	}
+}
+
+func (x *xtraConfig) injectResult(path, id string, r *http.Request) error {
+	parts := strings.Split(path, ".")
+	if len(parts) < 2 {
+		return errors.New("Invalid result path")
+	}
+
+	switch parts[0] {
+	case "header":
+		r.Header.Set(x.IDResultPath, id)
+		return nil
+	case "body":
+		raw, _ := ioutil.ReadAll(r.Body)
+		if raw == nil {
+			return errors.New("Unable to read request body")
+		}
+		res, err := sjson.Set(string(raw), strings.Join(parts[1:], "."), id)
+		if err != nil {
+			return err
+		}
+		r.Body = ioutil.NopCloser(bytes.NewReader([]byte(res)))
+		return nil
+	default:
+		return errors.New("Invalid result path")
 	}
 }

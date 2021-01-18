@@ -66,7 +66,8 @@ require (
 	github.com/sirupsen/logrus v1.3.0 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/stretchr/testify v1.6.1
-	github.com/tidwall/gjson v1.6.4
+	github.com/tidwall/gjson v1.6.7
+	github.com/tidwall/sjson v1.1.4
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/tmthrgd/atomics v0.0.0-20180217065130-6910de195248 // indirect
 	github.com/tmthrgd/go-bitset v0.0.0-20180106085139-4d1be735fbfb // indirect
