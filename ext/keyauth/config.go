@@ -43,6 +43,7 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		BasePath:      basePath,
 		IDResultPath:  defaultResultPath,
 		RequestMap:    make(map[string]string),
+		ResponsePath:  defaultResponsePath,
 	}
 
 	if sa, ok := tmp["service_address"].(string); ok {

@@ -1,7 +1,7 @@
 {
     "version": 2,
     "name": "My lovely gateway",
-    "port": 8000,
+    "port": 8080,
     "cache_ttl": "3600s",
     "timeout": "3s",
     "extra_config": {
@@ -28,6 +28,38 @@
       }
     },
     "endpoints": [
+        {
+            "endpoint": "/echo/apikey",
+            "method": "POST",
+            "headers_to_pass": [
+                "*"
+            ],
+            "querystring_params": [
+                "*"
+            ],
+            "concurrent_calls": 1,
+            "output_encoding" : "no-op",
+            "extra_config" : {
+                "github_com/sahalzain/krakend-keyauth" : {
+                    "service_address" : "http://localhost:5000",
+                    "base_path" : "/auth/apikey/lookup",
+                    "request_map" : {
+                        "key" : "body.apikey"
+                    },
+                    "result_path" : "body.parner_id"
+                }
+            },
+            "backend": [
+                {
+                    "host": [
+                        "http://localhost:3000"
+                    ],
+                    "url_pattern": "/echo/apikey",
+                    "disable_host_sanitize": false,
+                    "encoding" : "no-op"
+                }
+            ]
+        },
         {
             "endpoint": "/user/view",
             "method": "GET",

@@ -82,8 +82,7 @@ update_krakend_deps:
 
 build:
 	@echo "Building the binary..."
-	@GOPROXY=https://goproxy.io go get .
-	@go build -ldflags="-X github.com/devopsfaith/krakend/core.KrakendVersion=${VERSION}" -o ${BIN_NAME} ./cmd/krakend-ce
+	@env GO111MODULE=on go build -mod=vendor -ldflags="-X github.com/devopsfaith/krakend/core.KrakendVersion=${VERSION}" -o ${BIN_NAME} ./cmd/krakend-ce
 	@echo "You can now use ./${BIN_NAME}"
 
 test: build

@@ -43,9 +43,10 @@ func NewHTTPKeyAuth(address, basePath, responsePath string, cacheDuration, cache
 	}
 
 	return &HTTPKeyAuth{
-		address:  address,
-		basePath: basePath,
-		cache:    c,
+		address:      address,
+		basePath:     basePath,
+		cache:        c,
+		responsePath: responsePath,
 	}
 }
 

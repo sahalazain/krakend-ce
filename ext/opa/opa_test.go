@@ -108,3 +108,27 @@ func TestCheckPermission(t *testing.T) {
 	assert.False(t, rs)
 
 }
+
+func TestJWTPayload(t *testing.T) {
+	token := "eyJhbGciOiJSUzI1NiIsImtpZCI6IjN1TVJqY1BtZEJLTE9nRlczYVJzRU1YQ0VXaWllVWduT0FYVDBJWG04Rm89In0.eyJhdWQiOiJhcHBzIiwiZXhwIjoxNjExMDQzMDkzLCJncm91cHMiOlsiZGVmYXVsdCJdLCJpc3MiOiJzaWNlcGF0IiwicG9saWN5IjoiZGVmYXVsdCIsInJvbGVzIjpbImRlZmF1bHQiXSwic3ViIjoiR1g2dnZkZzEyRHdubldNbkRkYzV0TWV1MlFHeTljOUxOZlBpMTl0N2J3Vm0ifQ.fUqK8JfGyl8etfpsEZZ9K49D89iycINZ-gq_E1stY87aoTeRFZzTaFwGASyslL8sRm6WRvGE79Tg8CkU3blTt3_Ngl5j41pZ__aL-uK92kgL6aSsquFSZG8XLJxpY8TZPN1PNuOiWGQ3LDTqBozeiqEGaX38LMNSQ4CAGLZS9-wCN3oUdRR-V_ulfdAOTcBSbImtJY6JdamXv_3UhsvjVl5ExQOFIKicY9KyaCLDx9oghQLNvgJcLaFm9z8jYHPIjA1IrAe84-2eWNSwFU9XcGwkpoOr1G4QfX2Cs2FoKWCR_sqQg4qMZRdlDgZFYwkv4ZmXN-hdUmS7OH73LckwmA"
+	cfg := &xtraConfig{
+		ServiceAddress: "http://localhost:8080",
+		PackageName:    "opa.test",
+		PayloadMap: map[string]string{
+			"subject": "jwt.payload.sub",
+			"groups":  "jwt.payload.groups",
+		},
+	}
+
+	assert.NotNil(t, cfg)
+
+	req, err := http.NewRequest("GET", "http://localhost:8000/echo/alpha?city=Jakarta", nil)
+	assert.Nil(t, err)
+	assert.NotNil(t, req, "Should not nil")
+	req.Header.Add(authHeader, "Bearer "+token)
+
+	oreq := cfg.buildRequest(req)
+	assert.NotNil(t, oreq, "Should not nil")
+	assert.Equal(t, "GX6vvdg12DwnnWMnDdc5tMeu2QGy9c9LNfPi19t7bwVm", oreq.Input.Payload["subject"])
+	assert.Equal(t, []string{"default"}, oreq.Input.Payload["groups"])
+}

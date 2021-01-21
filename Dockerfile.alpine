@@ -1,4 +1,4 @@
-FROM golang:1.15.2-alpine3.12 as builder
+FROM golang:1.15-alpine as builder
 
 WORKDIR /app
 
@@ -8,9 +8,7 @@ COPY . .
 
 RUN make build
 
-FROM alpine:3.12
-
-LABEL maintainer="dortiz@devops.faith"
+FROM alpine
 
 COPY --from=builder /app/krakend /usr/bin/krakend
 

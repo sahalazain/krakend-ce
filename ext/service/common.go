@@ -32,5 +32,5 @@ func post(address, path string, data, res interface{}) error {
 		return errors.New(string(rdata))
 	}
 
-	return json.Unmarshal(rdata, &res)
+	return json.Unmarshal(rdata, res)
 }

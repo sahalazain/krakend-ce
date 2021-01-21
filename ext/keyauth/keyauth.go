@@ -170,7 +170,9 @@ func (x *xtraConfig) injectResult(path, id string, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		r.Body = ioutil.NopCloser(bytes.NewReader([]byte(res)))
+		bres := []byte(res)
+		r.Body = ioutil.NopCloser(bytes.NewReader(bres))
+		r.Header.Set("Content-Length", fmt.Sprintf("%v", len(bres)))
 		return nil
 	default:
 		return errors.New("Invalid result path")
