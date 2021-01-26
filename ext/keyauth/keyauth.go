@@ -159,7 +159,7 @@ func (x *xtraConfig) injectResult(path, id string, r *http.Request) error {
 
 	switch parts[0] {
 	case "header":
-		r.Header.Set(x.IDResultPath, id)
+		r.Header.Set(parts[1], id)
 		return nil
 	case "body":
 		raw, _ := ioutil.ReadAll(r.Body)
