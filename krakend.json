@@ -46,7 +46,9 @@
                     "request_map" : {
                         "key" : "body.apikey"
                     },
-                    "result_path" : "body.parner_id"
+                    "response_map" : {
+                        "body.partner_id" : "result.id"
+                    } 
                 }
             },
             "backend": [
