@@ -77,17 +77,19 @@ func (x *xtraConfig) validateKey(r *http.Request) (bool, error) {
 		return false, err
 	}
 
-	id, err := x.Service.Validate(req)
-	if err != nil {
+	res, err := x.Service.Validate(req)
+	if err != nil || res == nil {
 		return false, err
 	}
 
-	if id == "" {
-		return false, nil
-	}
-
-	if err := x.injectResult(x.IDResultPath, id, r); err != nil {
-		return false, err
+	for k, v := range x.ResponseMap {
+		val, ok := lookup(v, res)
+		if !ok {
+			continue
+		}
+		if err := x.injectResult(k, fmt.Sprintf("%v", val), r); err != nil {
+			continue
+		}
 	}
 
 	return true, nil

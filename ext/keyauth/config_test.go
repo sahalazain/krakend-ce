@@ -55,7 +55,6 @@ func TestConfigParse(t *testing.T) {
 	assert.NotNil(t, cfg.Service)
 	assert.Equal(t, cfg.BasePath, basePath, "Should be default")
 	assert.Equal(t, cfg.CacheDuration, defaultCacheDuration, "Should be default")
-	assert.Equal(t, cfg.IDResultPath, defaultResultPath, "Should be default")
 }
 
 func TestConfigCustomParse(t *testing.T) {
@@ -68,7 +67,9 @@ func TestConfigCustomParse(t *testing.T) {
 			},
 			"base_path":      "/v2/auth/key",
 			"cache_duration": 10,
-			"result_path":    "header.X-PartnerID",
+			"response_map": map[string]interface{}{
+				"header.X-PartnerID": "result.partner",
+			},
 		},
 	}
 
@@ -77,5 +78,5 @@ func TestConfigCustomParse(t *testing.T) {
 	assert.NotNil(t, cfg, "Should not nil")
 	assert.Equal(t, cfg.BasePath, "/v2/auth/key", "Should not default")
 	assert.Equal(t, cfg.CacheDuration, 10, "Should not default")
-	assert.Equal(t, cfg.IDResultPath, "header.X-PartnerID", "Should not default")
+	assert.Equal(t, 1, len(cfg.ResponseMap))
 }

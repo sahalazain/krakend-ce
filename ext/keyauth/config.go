@@ -14,18 +14,17 @@ const (
 	basePath             = "/v1/auth/key"
 	defaultCacheDuration = 24 * 3600
 	defaultResultPath    = "header.X-KeyID"
-	defaultResponsePath  = "result"
+	defaultResponsePath  = "result.id"
 )
 
 type xtraConfig struct {
 	ServiceAddress string
 	BasePath       string
-	IDResultPath   string
 	CacheDuration  int
 	CacheSize      int
 	Service        service.KeyAuth
 	RequestMap     map[string]string
-	ResponsePath   string
+	ResponseMap    map[string]string
 }
 
 func configGetter(cfg config.ExtraConfig) *xtraConfig {
@@ -41,9 +40,10 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		CacheDuration: defaultCacheDuration,
 		CacheSize:     0,
 		BasePath:      basePath,
-		IDResultPath:  defaultResultPath,
 		RequestMap:    make(map[string]string),
-		ResponsePath:  defaultResponsePath,
+		ResponseMap: map[string]string{
+			defaultResultPath: defaultResponsePath,
+		},
 	}
 
 	if sa, ok := tmp["service_address"].(string); ok {
@@ -79,21 +79,23 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		}
 	}
 
-	if rp, ok := tmp["response_path"].(string); ok {
-		conf.ResponsePath = rp
-	}
-
 	if bp, ok := tmp["base_path"].(string); ok {
 		conf.BasePath = bp
 	}
 
-	if hn, ok := tmp["result_path"].(string); ok {
-		if strings.Contains(hn, ".") {
-			conf.IDResultPath = hn
+	if rsm, ok := tmp["response_map"]; ok {
+		if rmap, ok := rsm.(map[string]interface{}); ok {
+			conf.ResponseMap = make(map[string]string)
+			for k, v := range rmap {
+				if !strings.Contains(fmt.Sprintf("%v", k), ".") {
+					continue
+				}
+				conf.ResponseMap[k] = fmt.Sprintf("%v", v)
+			}
 		}
 	}
 
-	conf.Service = service.NewHTTPKeyAuth(conf.ServiceAddress, conf.BasePath, conf.ResponsePath, conf.CacheDuration, conf.CacheSize)
+	conf.Service = service.NewHTTPKeyAuth(conf.ServiceAddress, conf.BasePath, conf.CacheDuration, conf.CacheSize)
 
 	return &conf
 }

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"time"
 
 	cache "github.com/devopsfaith/krakend-ce/ext/cache"
@@ -14,25 +13,24 @@ type KeyAuthResponse struct {
 
 //KeyAuth keyAuth service interface
 type KeyAuth interface {
-	Validate(key Cacheable) (string, error)
+	Validate(key Cacheable) (map[string]interface{}, error)
 }
 
 //HTTPKeyAuth http keyAuth service
 type HTTPKeyAuth struct {
-	address      string
-	basePath     string
-	cache        cache.Local
-	responsePath string
+	address  string
+	basePath string
+	cache    cache.Local
 }
 
 //DummyKeyAuth dummy key auth service
 type DummyKeyAuth struct {
-	Result string
+	Result map[string]interface{}
 	Error  error
 }
 
 //NewHTTPKeyAuth create instance of http keyAuth service
-func NewHTTPKeyAuth(address, basePath, responsePath string, cacheDuration, cacheSize int) *HTTPKeyAuth {
+func NewHTTPKeyAuth(address, basePath string, cacheDuration, cacheSize int) *HTTPKeyAuth {
 	var c cache.Local
 	if cacheSize > 0 {
 		c, _ = cache.NewLRU(cacheSize)
@@ -43,10 +41,9 @@ func NewHTTPKeyAuth(address, basePath, responsePath string, cacheDuration, cache
 	}
 
 	return &HTTPKeyAuth{
-		address:      address,
-		basePath:     basePath,
-		cache:        c,
-		responsePath: responsePath,
+		address:  address,
+		basePath: basePath,
+		cache:    c,
 	}
 }
 
@@ -56,34 +53,22 @@ func NewDummyKeyAuth() *DummyKeyAuth {
 }
 
 //Validate validate key api
-func (h *HTTPKeyAuth) Validate(key Cacheable) (string, error) {
+func (h *HTTPKeyAuth) Validate(key Cacheable) (map[string]interface{}, error) {
 	hs := key.Hash()
 
 	if rsp, ok := h.cache.Get(hs); ok {
-		return rsp.(string), nil
+		return rsp.(map[string]interface{}), nil
 	}
 
 	var rsp map[string]interface{}
 	if err := post(h.address, h.basePath, key, &rsp); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	res, ok := lookup(h.responsePath, rsp)
-	if !ok {
-		return "", errors.New("No value within result path")
-	}
-
-	id, ok := res.(string)
-	if !ok {
-		return "", errors.New("Invalid result type")
-	}
-
-	h.cache.Set(hs, id)
-
-	return id, nil
+	return rsp, nil
 }
 
 //Validate validate key api
-func (d *DummyKeyAuth) Validate(key Cacheable) (string, error) {
+func (d *DummyKeyAuth) Validate(key Cacheable) (map[string]interface{}, error) {
 	return d.Result, d.Error
 }

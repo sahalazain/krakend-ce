@@ -2,7 +2,6 @@ package keyauth
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -19,7 +18,9 @@ func TestBodyRequest(t *testing.T) {
 		RequestMap: map[string]string{
 			"key": "body.key_api",
 		},
-		IDResultPath: defaultResultPath,
+		ResponseMap: map[string]string{
+			defaultResultPath: defaultResponsePath,
+		},
 	}
 
 	ds := service.NewDummyKeyAuth()
@@ -37,15 +38,14 @@ func TestBodyRequest(t *testing.T) {
 
 	cfg.Service = ds
 	ds.Error = nil
-	ds.Result = "partner1"
+	ds.Result = map[string]interface{}{"result": map[string]string{"id": "partner1"}}
 
 	r, err := cfg.validateKey(req)
 	assert.Nil(t, err)
 	assert.True(t, r)
-	fmt.Println(cfg.IDResultPath)
-	assert.Equal(t, req.Header.Get(cfg.IDResultPath), "partner1")
+	assert.Equal(t, req.Header.Get("X-KeyID"), "partner1")
 
-	ds.Result = ""
+	ds.Result = nil
 	r, err = cfg.validateKey(req)
 	assert.False(t, r)
 }
@@ -180,7 +180,9 @@ func TestBodyResult(t *testing.T) {
 		RequestMap: map[string]string{
 			"key": "body.key_api",
 		},
-		IDResultPath: "body.partner",
+		ResponseMap: map[string]string{
+			"body.partner": defaultResponsePath,
+		},
 	}
 
 	ds := service.NewDummyKeyAuth()
@@ -198,7 +200,7 @@ func TestBodyResult(t *testing.T) {
 
 	cfg.Service = ds
 	ds.Error = nil
-	ds.Result = "partner1"
+	ds.Result = map[string]interface{}{"result": map[string]string{"id": "partner1"}}
 
 	r, err := cfg.validateKey(req)
 	assert.Nil(t, err)
