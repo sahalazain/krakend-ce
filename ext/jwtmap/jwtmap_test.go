@@ -28,7 +28,7 @@ func TestJWTMap(t *testing.T) {
 
 	const jsonData = `{"name":{"first":"Janet", "last":"Prichard" },"age":47}`
 	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-	req, err := http.NewRequest("POST", "http://localhost:8000/echo", nil)
+	req, err := http.NewRequest("POST", "http://localhost:8000/echo?name=John", nil)
 	assert.Nil(t, err)
 	assert.NotNil(t, req, "Should not nil")
 	req.Header.Add(authHeader, "Bearer "+token)

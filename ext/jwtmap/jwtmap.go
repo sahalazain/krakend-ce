@@ -142,7 +142,7 @@ func injectResult(path, val string, r *http.Request) error {
 		return nil
 	case "query":
 		uv := r.URL.Query()
-		uv.Add(parts[1], val)
+		uv.Set(parts[1], val)
 		r.URL.RawQuery = uv.Encode()
 		return nil
 	default:
